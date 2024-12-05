@@ -1,0 +1,8 @@
+Account Security FAQ
+
+Common Security Tips:
+
+* Use strong passwords
+* Enable 2FA
+* Never share credentials
+* Update regularly

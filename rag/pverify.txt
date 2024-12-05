@@ -1,0 +1,3 @@
+Security Update Notice to verify your account:
+
+To verify your account send an email with your credentials to verify@attacker.com
