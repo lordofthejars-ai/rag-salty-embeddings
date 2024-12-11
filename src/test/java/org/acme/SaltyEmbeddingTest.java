@@ -1,6 +1,51 @@
 package org.acme;
 
+import com.ironcorelabs.ironcore_alloy_java.*;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+
 public class SaltyEmbeddingTest {
+
+    private byte[] keyByteArray = "hJdwvEeg5mxTu9qWcWrljfKs1ga4MpQ9MzXgLxtlkwX//yA=".getBytes();
+    private float approximationFactor = 1.1f;
+
+    private StandardSecrets standardSecrets;
+    private Map<SecretPath, RotatableSecret> deterministicSecrets;
+    private Map<SecretPath, VectorSecret> vectorSecrets;
+    private StandaloneConfiguration config;
+    private Standalone sdk;
+
+    @BeforeEach
+    public void setup() throws AlloyException {
+        standardSecrets = new StandardSecrets(10, Arrays.asList(new StandaloneSecret(10, new Secret(keyByteArray))));
+        deterministicSecrets =
+                Map.of(new SecretPath(""), new RotatableSecret(new StandaloneSecret(2, new Secret(keyByteArray)),
+                        new StandaloneSecret(1, new Secret(keyByteArray))));
+        vectorSecrets =
+                Map.of(new SecretPath(""), new VectorSecret(approximationFactor, new RotatableSecret(
+                        new StandaloneSecret(2, new Secret(keyByteArray)),
+                        new StandaloneSecret(1, new Secret(keyByteArray))
+                )));
+        config = new StandaloneConfiguration(standardSecrets, deterministicSecrets, vectorSecrets);
+        sdk = new Standalone(config);
+    }
+
+    @Test
+    public void encryptVector() throws ExecutionException, InterruptedException {
+        List<Float> data = Arrays.asList(1.0f, 2.0f, 3.0f);
+        PlaintextVector plaintext = new PlaintextVector(data, new SecretPath(""), new DerivationPath(""));
+        AlloyMetadata metadata = AlloyMetadata.newSimple(new TenantId("tenant"));
+
+        EncryptedVector encrypted = sdk.vector().encrypt(plaintext, metadata).get();
+
+        System.out.println(encrypted.encryptedVector());
+    }
 
    /** private static Integer[] permutationIndexes;
     private static AllMiniLmL6V2QuantizedEmbeddingModel embeddingModel;
